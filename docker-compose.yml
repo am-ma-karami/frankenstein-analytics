@@ -1,0 +1,34 @@
+# Run the whole app with no local Node.js install:
+#   docker compose up --build
+# Then open http://localhost:3001/dashboard
+#
+# Source folders are bind-mounted, so edits on your machine hot-reload inside
+# the containers. Ports are published to the host exactly as in local dev, so
+# the CORS / origin behavior is identical to running without Docker.
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: ["npm", "run", "dev"]
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5050
+      - WATCHPACK_POLLING=true
+    # bind to 0.0.0.0 so the dev server is reachable from the host browser
+    command: ["npm", "run", "dev", "--", "-H", "0.0.0.0"]
+    depends_on:
+      - backend
