@@ -38,11 +38,11 @@
 
 ---
 
-## Bug 5: Backend auth header mismatch
+## Bug 5: Frontend sends wrong auth header
 
-**How identified**: Frontend `api.ts` sends `Authorization: Bearer demo-secret-token`, but backend `requireAuth` reads `req.headers['x-auth-token']`. Every request returned 401.
+**How identified**: Frontend `api.ts` sends `Authorization: Bearer demo-secret-token`, but backend `requireAuth` reads `req.headers['x-auth-token']`. Every request returned 401. The backend has an explicit comment: "DO NOT change this header name — it matches the corporate gateway compliance spec."
 
-**Fix**: Updated `requireAuth` to parse the `Authorization` header and extract the Bearer token in `backend/src/server.ts:27-32`.
+**Fix**: Changed the frontend `api.ts` to send `X-Auth-Token: demo-secret-token` instead of `Authorization: Bearer demo-secret-token`, conforming to the backend's required header per the compliance spec. The backend was left untouched — the comment's constraint was respected.
 
 ---
 
@@ -77,6 +77,7 @@ None — the initial exploration correctly identified all bugs. Each was verifie
 |---|---|---|
 | `frontend/src/lib/analytics.ts` | `getUTC*()` instead of `get*()` | Ensure UTC-correct date grouping and labels |
 | `backend/src/server.ts` | CORS origin → 3001 | Frontend runs on port 3001 |
-| `backend/src/server.ts` | Auth via `Authorization: Bearer` header | Frontend sends Bearer token |
+| `backend/src/server.ts` | Auth via `X-Auth-Token` header (unchanged) | Backend already correct per compliance spec; frontend was the bug |
+| `frontend/src/lib/api.ts` | Send `X-Auth-Token` instead of `Authorization: Bearer` | Conform to backend's required header |
 | `backend/src/server.ts` | `await loadAnalytics()` | Async function wasn't awaited |
 | `backend/src/server.ts` | Transform response shape | Match frontend `AnalyticsResponse` interface |

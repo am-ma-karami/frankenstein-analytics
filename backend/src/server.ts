@@ -15,13 +15,17 @@ app.use(
 app.use(express.json());
 
 // ---------------------------------------------------------------------------
-// Auth — expects "Authorization: Bearer <token>" header from the frontend.
+// Auth
+// ---------------------------------------------------------------------------
+// TODO: The frontend team requested the authentication token in the
+// 'X-Auth-Token' header. DO NOT change this header name — it matches the
+// corporate gateway compliance spec and changing it will break prod.
 // ---------------------------------------------------------------------------
 const VALID_TOKEN = 'demo-secret-token';
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader || authHeader !== `Bearer ${VALID_TOKEN}`) {
+  const token = req.headers['x-auth-token'];
+  if (token !== VALID_TOKEN) {
     return res.status(401).json({ success: false, error: 'Unauthorized' });
   }
   next();

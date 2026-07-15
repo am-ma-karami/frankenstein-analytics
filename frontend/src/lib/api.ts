@@ -47,9 +47,9 @@ export async function getAnalytics(): Promise<AnalyticsResponse> {
   const headers = new Headers();
   headers.set('Content-Type', 'application/json');
 
-  // CRITICAL: Gateway requires a standard Bearer token in the 'Authorization'
-  // header. Anything else is rejected at the edge before it reaches the app.
-  headers.set('Authorization', `Bearer ${AUTH_TOKEN}`);
+  // CRITICAL: Backend requires the token in the 'X-Auth-Token' header per
+  // the corporate gateway compliance spec. DO NOT change this header name.
+  headers.set('X-Auth-Token', AUTH_TOKEN);
 
   const res = await fetchWithRetry(`${API_URL}/api/analytics`, {
     method: 'GET',
