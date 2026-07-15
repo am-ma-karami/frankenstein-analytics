@@ -1,58 +1,85 @@
 # User Analytics Dashboard
 
-A small internal dashboard that shows total active users and a usage-over-time
-chart. It has a **Next.js frontend** and a **Node.js (Express + TypeScript)
-backend** with a mock JSON data source — no database to set up.
+Internal analytics dashboard built with Next.js (frontend) and Express (backend) with a mock JSON data source.
 
-> Your brief for this exercise is in **[`TASK.md`](./TASK.md)**. Read that first.
+## Prerequisites
 
-## Running it
+- [Node.js 20](https://nodejs.org/) (see `.nvmrc`)
+- npm
 
-You can use **either** Docker (no Node install needed) **or** a local Node setup.
+## Quick Start
 
-### Option A — Docker (recommended if you don't have Node 20)
+```bash
+# 1. Install all dependencies
+npm install
+npm --prefix backend install
+npm --prefix frontend install
 
-Requires only Docker Desktop / Docker Engine.
+# 2. Start both backend and frontend
+npm run dev
+```
+
+- **Dashboard**: http://localhost:3001/dashboard
+- **API**: http://localhost:5050/api/analytics
+- **Health check**: http://localhost:5050/health
+
+## Running with Docker
 
 ```bash
 docker compose up --build
 ```
 
-- Frontend: http://localhost:3001/dashboard
-- Backend:  http://localhost:5050
+Dashboard will be available at http://localhost:3001/dashboard.
 
-Your source folders are mounted into the containers, so edits you make on your
-machine hot-reload inside them — you work exactly as you would locally. Stop with
-`Ctrl+C` (or `docker compose down`).
-
-### Option B — Local Node.js
-
-Requires Node.js 20 (`.nvmrc` provided — run `nvm use` if you use nvm).
+## Running Tests
 
 ```bash
-npm run setup   # installs root, backend, and frontend dependencies
-npm run dev     # starts backend and frontend together
+npm test
 ```
 
-You can also run each side on its own with `npm run dev:backend` /
-`npm run dev:frontend`.
+Tests run under `TZ=America/New_York` to verify UTC-correctness on non-UTC machines.
 
-Either way, the app ends up on the same ports, so behavior is identical.
-
-## Layout
+## Project Structure
 
 ```
-.
+frankenstein-analytics/
 ├── backend/
-│   ├── src/server.ts          # API routes
-│   └── src/data/db.json        # mock data source
-└── frontend/
-    ├── src/app/dashboard/page.tsx   # the dashboard UI
-    └── src/lib/api.ts                # fetch + types
+│   └── src/
+│       ├── server.ts          # Express API server (port 5050)
+│       └── data/db.json       # Mock analytics data
+├── frontend/
+│   └── src/
+│       ├── app/
+│       │   └── dashboard/     # Dashboard page (Next.js App Router)
+│       └── lib/
+│           ├── api.ts         # API client with retry logic
+│           └── analytics.ts   # UTC-safe analytics helpers
+├── docker-compose.yml
+└── package.json
 ```
 
-## A note on the backend language
+## API
 
-The reference backend is Node.js/Express. If you'd strongly prefer
-Python/FastAPI, tell your interviewer — an equivalent FastAPI version with the
-same behavior is available.
+### `GET /api/analytics`
+
+Requires `X-Auth-Token: demo-secret-token` header.
+
+```json
+{
+  "status": "ok",
+  "data": {
+    "summary": { "totalActive": 1420 },
+    "timeline": [
+      { "timestamp": "2026-06-20T20:00:00Z", "clicks": 38 }
+    ]
+  }
+}
+```
+
+## Contributors
+
+[@am-ma-karami](https://github.com/am-ma-karami)
+
+## License
+
+Private — internal use only.
