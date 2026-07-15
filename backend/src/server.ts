@@ -8,7 +8,7 @@ const PORT = 5050;
 // The dashboard is served from the local dev frontend. Lock CORS down to it.
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: 'http://localhost:3001',
   })
 );
 
@@ -24,8 +24,8 @@ app.use(express.json());
 const VALID_TOKEN = 'demo-secret-token';
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers['x-auth-token'];
-  if (token !== VALID_TOKEN) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || authHeader !== `Bearer ${VALID_TOKEN}`) {
     return res.status(401).json({ success: false, error: 'Unauthorized' });
   }
   next();
@@ -38,13 +38,17 @@ async function loadAnalytics() {
 }
 
 app.get('/api/analytics', requireAuth, async (req: Request, res: Response) => {
-  // Pull the latest analytics snapshot from the data layer.
-  const analytics = loadAnalytics();
+  const analytics = await loadAnalytics();
 
   res.json({
-    success: true,
-    total_users: analytics.total_users,
-    history: analytics.history,
+    status: 'ok',
+    data: {
+      summary: { totalActive: analytics.total_users },
+      timeline: analytics.history.map((h: any) => ({
+        timestamp: h.time,
+        clicks: h.usage_count,
+      })),
+    },
   });
 });
 
