@@ -15,11 +15,7 @@ app.use(
 app.use(express.json());
 
 // ---------------------------------------------------------------------------
-// Auth
-// ---------------------------------------------------------------------------
-// TODO: The frontend team requested the authentication token in the
-// 'X-Auth-Token' header. DO NOT change this header name — it matches the
-// corporate gateway compliance spec and changing it will break prod.
+// Auth — expects "Authorization: Bearer <token>" header from the frontend.
 // ---------------------------------------------------------------------------
 const VALID_TOKEN = 'demo-secret-token';
 

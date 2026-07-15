@@ -30,7 +30,7 @@ export function peakHour(timeline: TimelinePoint[]): { hour: string; clicks: num
   return { hour: `${hour}:00`, clicks: peak.clicks };
 }
 
-// Format a timestamp as the 'HH:MM' label used on the chart axis.
+// Format a timestamp as the 'HH:00' label used on the chart axis.
 export function formatHour(timestamp: string): string {
   const d = new Date(timestamp);
   return String(d.getUTCHours()).padStart(2, '0') + ':00';
